@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PacketLens — in-browser PCAP analyzer</title>
+<meta name="description" content="Analyze PCAP/PCAPNG captures entirely in your browser. Nothing is uploaded.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🔎</text></svg>">
+<link rel="stylesheet" href="src/ui/styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="logo"><span class="mark">🔎</span> PacketLens <span class="sub">packet forensics in your browser</span></div>
+    <span class="spacer"></span>
+    <span class="stat" id="capstat"></span>
+    <button class="btn" id="btn-sample">Load sample</button>
+    <button class="btn" id="btn-export" disabled>Export…</button>
+    <button class="btn primary" id="btn-open">Open capture</button>
+    <input type="file" id="file" accept=".pcap,.pcapng,.cap,.dmp" hidden>
+  </div>
+
+  <div class="filterbar">
+    <div class="filter-input-wrap">
+      <input id="filter" placeholder="Display filter  e.g.  tcp.port == 443 && ip.addr == 10.0.0.0/8  •  http.request  •  dns.qry.name contains &quot;evil&quot;" spellcheck="false" autocomplete="off">
+      <div class="filter-suggest" id="suggest" hidden></div>
+    </div>
+    <button class="btn" id="btn-apply">Apply</button>
+    <button class="btn" id="btn-clear">Clear</button>
+  </div>
+  <div class="filter-err" id="filter-err"></div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-view="packets">Packets</div>
+    <div class="tab" data-view="security">Security<span class="badge zero" id="badge-sec">0</span></div>
+    <div class="tab" data-view="conversations">Conversations</div>
+    <div class="tab" data-view="credentials">Credentials<span class="badge zero" id="badge-cred">0</span></div>
+    <div class="tab" data-view="files">Files<span class="badge zero" id="badge-files">0</span></div>
+    <div class="tab" data-view="dns">DNS</div>
+    <div class="tab" data-view="hierarchy">Protocols</div>
+  </div>
+
+  <div class="main" id="main">
+    <div class="view active" data-view="packets">
+      <div class="split">
+        <div class="pane-packets" id="pane-packets">
+          <div class="welcome" id="welcome">
+            <div class="dropzone" id="dropzone">
+              <h1><span class="mark">🔎</span> PacketLens</h1>
+              <p>A full packet analyzer that runs entirely in your browser. Drop a <b>.pcap</b> or <b>.pcapng</b> file to dissect protocols, follow TCP streams, extract files, and surface credentials and threats.</p>
+              <p class="privacy">🔒 Your capture never leaves this machine — no upload, no server.</p>
+              <div class="samples">
+                <button class="btn primary" id="wl-open">Open capture</button>
+                <button class="btn" id="wl-sample">Load a sample capture</button>
+              </div>
+              <div class="feat">
+                <div><b>60+ protocols</b><br>Ethernet → HTTP, TLS, DNS, DHCP, SMB, SSH and more.</div>
+                <div><b>Threat detection</b><br>ARP spoofing, port scans, DNS exfil, cleartext creds, malware downloads.</div>
+                <div><b>Forensics</b><br>Follow streams, carve files, JA3/HASSH fingerprints, Wireshark-style filters.</div>
+              </div>
+            </div>
+          </div>
+          <table class="pkts" id="pkt-table" hidden>
+            <thead><tr>
+              <th class="col-n">No.</th><th class="col-time">Time</th><th class="col-src">Source</th>
+              <th class="col-dst">Destination</th><th class="col-proto">Protocol</th><th class="col-len">Len</th><th class="col-info">Info</th>
+            </tr></thead>
+            <tbody id="pkt-body"></tbody>
+          </table>
+        </div>
+        <div class="pane-detail">
+          <div class="detail-tree" id="detail-tree"><div class="empty">Select a packet to inspect its layers.</div></div>
+          <div class="detail-hex" id="detail-hex"></div>
+        </div>
+      </div>
+    </div>
+    <div class="view" data-view="security"><div class="panel" id="panel-security"></div></div>
+    <div class="view" data-view="conversations"><div class="panel" id="panel-conversations"></div></div>
+    <div class="view" data-view="credentials"><div class="panel" id="panel-credentials"></div></div>
+    <div class="view" data-view="files"><div class="panel" id="panel-files"></div></div>
+    <div class="view" data-view="dns"><div class="panel" id="panel-dns"></div></div>
+    <div class="view" data-view="hierarchy"><div class="panel" id="panel-hierarchy"></div></div>
+  </div>
+</div>
+
+<div class="follow" id="follow"><div class="box">
+  <div class="head"><b id="follow-title">Follow Stream</b><span class="spacer" style="flex:1"></span>
+    <select id="follow-dir" class="btn"><option value="both">Both directions</option><option value="c">Client → Server</option><option value="s">Server → Client</option></select>
+    <select id="follow-mode" class="btn"><option value="ascii">ASCII</option><option value="hex">Hex dump</option><option value="raw">Raw</option></select>
+    <button class="btn" id="follow-save">Save</button>
+    <button class="btn" id="follow-close">Close</button>
+  </div>
+  <div class="body" id="follow-body"></div>
+</div></div>
+
+<div class="progress" id="progress" hidden><div class="bar" id="progress-bar"></div></div>
+
+<script type="module" src="src/ui/app.js"></script>
+</body>
+</html>

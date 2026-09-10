@@ -1,0 +1,16 @@
+{
+  "name": "packetlens",
+  "version": "0.1.0",
+  "description": "In-browser PCAP/PCAPNG forensic analyzer. Captures never leave your machine.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "build": "node build.mjs",
+    "serve": "node tools/serve.mjs",
+    "fixtures": "node tools/mkpcap.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
