@@ -2,15 +2,15 @@
 
 **A full packet analyzer that runs entirely in your browser.** Open a `.pcap` or `.pcapng`
 capture and PacketLens dissects the protocols, follows TCP streams, carves transferred files,
-recovers exposed credentials, and flags likely threats — Wireshark-style, with nothing uploaded.
+recovers exposed credentials, and flags likely threats (kinda Wireshark-style)
 
-> 🔒 **Your capture never leaves your machine.** All parsing happens client-side in a Web Worker.
+> All parsing happens client-side in a Web Worker.
 > There is no backend. You can even save the app as a single HTML file and open it offline.
 
 ## Why
 
-Sharing a packet capture with an online analyzer means handing your network's internals — internal
-IPs, hostnames, tokens, sometimes plaintext passwords — to someone else's server. PacketLens does
+Sharing a packet capture with an online analyzer means handing your network's internal
+IPs, hostnames, tokens, sometimes plaintext passwords to someone else's server. PacketLens does
 the same forensic work without that trade-off. It is also a compact, readable reference
 implementation of how packet dissection actually works.
 
