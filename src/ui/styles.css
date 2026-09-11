@@ -21,6 +21,8 @@ button { font-family: inherit; }
 .logo { font-weight: 700; letter-spacing: .3px; display: flex; align-items: center; gap: 7px; }
 .logo .mark { color: var(--accent); font-size: 16px; }
 .logo .sub { color: var(--fg-faint); font-weight: 400; font-size: 11px; }
+button.logo { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; cursor: pointer; }
+button.logo:hover { color: #fff; }
 .topbar .spacer { flex: 1; }
 .topbar .stat { color: var(--fg-dim); font-size: 12px; }
 .topbar .stat b { color: var(--fg); font-weight: 600; }

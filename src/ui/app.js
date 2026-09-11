@@ -13,6 +13,7 @@ const state = {
   filterMatched: null,
   view: 'packets',
   hexRanges: null,
+  loadGen: 0, // bumped by goHome so a load that is still reading its file is dropped
 };
 
 // ---- worker plumbing --------------------------------------------------------
@@ -33,8 +34,8 @@ function call(msg, transfer) {
 
 // ---- loading ----------------------------------------------------------------
 async function loadBuffer(buf, name) {
+  resetView();
   showProgress('Reading…');
-  state.detailCache.clear();
   const res = await call({ type: 'load', buffer: buf }, [buf]);
   if (res.type === 'error') { toast('Failed: ' + res.message.split('\n')[0]); return; }
   state.rows = res.rows; state.meta = res.meta; state.analysis = res.analysis; state.filtered = null; state.filterMatched = null;
@@ -42,6 +43,7 @@ async function loadBuffer(buf, name) {
   $('#welcome').style.display = 'none';
   $('#pkt-table').hidden = false;
   $('#btn-export').disabled = false;
+  $('#btn-close').disabled = false;
   updateCapStat();
   updateBadges();
   buildList();
@@ -50,8 +52,41 @@ async function loadBuffer(buf, name) {
 }
 
 async function openFile(file) {
+  const gen = state.loadGen;
   const buf = await file.arrayBuffer();
+  if (gen !== state.loadGen) return;
   await loadBuffer(buf, file.name);
+}
+
+// Clear everything tied to the loaded capture and show the start screen.
+function resetView() {
+  Object.assign(state, { rows: [], filtered: null, filterMatched: null, meta: null, analysis: null, selected: null, curHex: null });
+  state.detailCache.clear();
+  $('#filter').value = ''; $('#filter').className = ''; $('#filter-err').textContent = '';
+  hideSuggest();
+  switchView('packets');
+  $('#pkt-body').replaceChildren();
+  $('#pkt-table').hidden = true;
+  $('#pane-packets').scrollTop = 0;
+  $('#welcome').style.display = '';
+  $('#detail-tree').replaceChildren(el('div', 'empty', 'Select a packet to inspect its layers.'));
+  $('#detail-hex').replaceChildren();
+  for (const panel of $('#main').querySelectorAll('.panel')) panel.replaceChildren();
+  $('#capstat').textContent = '';
+  $('#btn-export').disabled = true;
+  $('#btn-close').disabled = true;
+  updateBadges();
+}
+
+// Back to the start screen. A fresh worker frees the old capture's memory and
+// abandons any load still in progress.
+function goHome() {
+  state.loadGen++;
+  state.worker.terminate();
+  state.pending.clear();
+  initWorker();
+  hideProgress();
+  resetView();
 }
 
 function updateCapStat() {
@@ -331,7 +366,9 @@ function toast(msg) { let t = $('#toast'); if (!t) { t = el('div', 'toast'); t.i
 // ---- events -----------------------------------------------------------------
 function wire() {
   $('#btn-open').onclick = $('#wl-open').onclick = () => $('#file').click();
-  $('#file').onchange = (e) => { if (e.target.files[0]) openFile(e.target.files[0]); };
+  // Reset the input so choosing the same file again still fires 'change'.
+  $('#file').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) openFile(f); };
+  $('#btn-home').onclick = $('#btn-close').onclick = goHome;
   $('#btn-sample').onclick = $('#wl-sample').onclick = loadSample;
   $('#btn-apply').onclick = applyFilter;
   $('#btn-clear').onclick = clearFilter;
@@ -365,9 +402,11 @@ function wire() {
 }
 
 async function loadSample() {
+  const gen = state.loadGen;
   showProgress();
   try {
     const mod = await import('../../fixtures/sample.js');
+    if (gen !== state.loadGen) return;
     const buf = mod.buildSample();
     await loadBuffer(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), 'sample.pcap');
   } catch (err) { hideProgress(); toast('Sample unavailable: ' + String(err).split('\n')[0]); }

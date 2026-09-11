@@ -11,11 +11,12 @@
 <body>
 <div id="app">
   <div class="topbar">
-    <div class="logo"><span class="mark">🔎</span> PacketLens <span class="sub">packet forensics in your browser</span></div>
+    <button class="logo" id="btn-home" title="Back to start screen"><span class="mark">🔎</span> PacketLens <span class="sub">packet forensics in your browser</span></button>
     <span class="spacer"></span>
     <span class="stat" id="capstat"></span>
     <button class="btn" id="btn-sample">Load sample</button>
     <button class="btn" id="btn-export" disabled>Export…</button>
+    <button class="btn" id="btn-close" title="Close this capture and return to the start screen" disabled>Close</button>
     <button class="btn primary" id="btn-open">Open capture</button>
     <input type="file" id="file" accept=".pcap,.pcapng,.cap,.dmp" hidden>
   </div>
