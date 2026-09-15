@@ -159,7 +159,8 @@ table.grid td.num { text-align: right; }
 .follow .c2s { color: #7ee787; } .follow .s2c { color: #79c0ff; }
 
 /* Drop zone / welcome */
-.welcome { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 40px; }
+/* Covers the whole packets view (list + detail pane), so it needs an opaque background. */
+.welcome { position: absolute; inset: 0; z-index: 5; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 40px; }
 .welcome.drag { background: #0d2137; }
 .dropzone { border: 2px dashed var(--border); border-radius: 16px; padding: 48px 64px; max-width: 640px; }
 .dropzone.drag { border-color: var(--accent); }
